@@ -1,6 +1,10 @@
 .env
 .venv/
+.venv-*/
 __pycache__/
 *.pyc
 .DS_Store
-airflow_home/logs/
+airflow_home/
+.secrets/
+*.p8
+*.pem
