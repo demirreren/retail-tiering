@@ -1,0 +1,19 @@
+version: 2
+
+# A "source" is a table dbt did not build (Airflow loads it). Declaring it lets models
+# reference it with source() and lets dbt test it.
+sources:
+  - name: raw
+    database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
+    schema: RAW
+    tables:
+      - name: LIQUOR_SALES
+        description: One row per invoice line, as loaded by the Airflow DAG.
+        loaded_at_field: LOADED_AT
+        columns:
+          - name: LINE_KEY
+            tests: [unique, not_null]
+          - name: ORDERED_ON
+            tests: [not_null]
+          - name: STORE_NO
+            tests: [not_null]

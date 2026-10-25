@@ -1,0 +1,18 @@
+# dbt project: SQL models built on top of the raw table Airflow loads.
+# A "model" is one SELECT statement saved as a file; dbt turns it into a view or table.
+name: retail_tiering
+version: "1.0"
+profile: retail_tiering
+model-paths: ["models"]
+macro-paths: ["macros"]
+target-path: target
+clean-targets: [target, dbt_packages]
+
+models:
+  retail_tiering:
+    staging:
+      +schema: staging
+      +materialized: view      # cheap: just a saved query over RAW
+    marts:
+      +schema: marts
+      +materialized: table     # physical table: fast to read for tiering and the dashboard

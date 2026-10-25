@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: store_month
+    description: Monthly sales per store. Grain = one store, one month.
+    columns:
+      - name: store_month_key
+        tests: [unique, not_null]
+      - name: store_id
+        tests: [not_null]
+      - name: sale_month
+        tests: [not_null]
+      - name: sales_dollars
+        tests: [not_null]

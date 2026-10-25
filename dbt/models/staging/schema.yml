@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_liquor_sales
+    description: Cleaned invoice lines. Grain = one invoice line.
+    columns:
+      - name: line_key
+        tests: [unique, not_null]
+      - name: sale_date
+        tests: [not_null]
+      - name: store_id
+        tests: [not_null]
+      - name: sales_dollars
+        tests: [not_null]
