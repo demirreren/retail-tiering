@@ -1,0 +1,4 @@
+# dbt venv (.venv-dbt). Kept separate: dbt and Airflow pin conflicting versions
+# of shared libraries, so each gets its own environment. Airflow runs dbt as a command.
+dbt-core~=1.12.0
+dbt-snowflake~=1.12.0

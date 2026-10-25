@@ -1,0 +1,10 @@
+# Airflow venv (.venv). Install via setup.sh so Airflow's constraints file is used.
+apache-airflow==3.3.2
+pandas
+requests
+python-dotenv
+snowflake-connector-python[pandas]
+scikit-learn
+xgboost
+shap
+matplotlib
