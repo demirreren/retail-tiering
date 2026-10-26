@@ -53,6 +53,7 @@ cp .env.example .env             # fill in your Snowflake account identifier
 scripts/airflow.sh standalone    # UI at http://localhost:8080; trigger iowa_liquor_pipeline
 .venv/bin/python -m tiering.tiers
 .venv/bin/python -m tiering.predict_drop
+.venv/bin/python scripts/export_for_tableau.py   # three CSVs under data/exports/ for Tableau Public
 # copilot: run snowflake/setup_reader.sql in Snowsight, add ANTHROPIC_API_KEY to .env, then
 .venv/bin/python -m assistant.ask "Which stores in Polk County dropped a tier between 2026 Q2 and Q3, and why?"
 .venv/bin/python -m assistant.run_eval
@@ -71,10 +72,47 @@ tiering/     composite score, tiers, back-test, tier-drop model
 assistant/   read-only SQL tool, Claude agent, ask CLI, eval runner
 evals/       32 questions with ground-truth SQL, computed answers, latest results
 snowflake/   one-time account setup SQL (loader and reader users)
-scripts/     wrappers that load .env and pick the right venv
+scripts/     wrappers that load .env and pick the right venv; the Tableau export
 reports/     SHAP charts
 NOTES.md     every number, with the run it came from
 ```
+
+## Tableau Public dashboard
+
+Tableau Public cannot connect to Snowflake, so the dashboard is built from CSV exports of the three marts:
+
+```bash
+.venv/bin/python scripts/export_for_tableau.py
+```
+
+That writes three files under `data/exports/` (gitignored). Each one carries a `state` column set to Iowa,
+which Tableau needs next to `county_name` to draw counties on a map.
+
+| file | grain | rows |
+|---|---|---|
+| `store_tiers.csv` | one store, one quarter: sales, score inputs, tier, `next_tier`, `next_change` | 22,838 |
+| `store_quarter.csv` | the same grain without the tiering columns (everything in it is also in `store_tiers.csv`) | 22,838 |
+| `tier_drop_risk.csv` | latest quarter only, one tier A or B store: `p_drop`, `top_reasons` | 933 |
+
+Suggested dashboard (build it in the free Tableau Public app, then File > Save to Tableau Public):
+
+1. **Data.** Connect to `store_tiers.csv` and add `tier_drop_risk.csv` as a second data source. Set
+   `store_id` to String in both (Tableau reads it as a number and drops the leading zeros), give
+   `county_name` the geographic role County and `state` the role State, and make `quarter_start` a Date.
+2. **Tier map by county.** A filled map of `county_name` (with `state` on Detail), coloured by the number
+   of tier A stores, with `quarter_start` as a filter shown on the dashboard. Switching the colour to the
+   share of tiered stores that are tier A shows which counties punch above their size.
+3. **Tier transitions.** A highlight table with `tier` on Rows and `next_tier` on Columns, excluding blank
+   values (the last quarter has no next quarter), text = count of rows, colour = Percent of Total computed
+   across each row. Over all quarters it reproduces the transition matrix in `NOTES.md`; filtered to
+   `quarter_start` = 2026-04-01 it shows the Q2 to Q3 moves alone.
+4. **Top at-risk stores.** From `tier_drop_risk.csv`: horizontal bars of `p_drop` by `store_name`, sorted
+   descending with a Top N filter (20 by `p_drop`), coloured by `tier`, and `county_name`, `margin` and
+   `top_reasons` in the tooltip so the hover explains the score.
+5. **Dashboard.** The three sheets, the quarter filter, and a filter action from the map (Dashboard >
+   Actions > Filter, source: map, targets: the other two sheets) so clicking a county narrows everything.
+
+Published link: to come.
 
 ## Data
 
