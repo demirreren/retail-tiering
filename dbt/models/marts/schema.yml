@@ -12,3 +12,22 @@ models:
         tests: [not_null]
       - name: sales_dollars
         tests: [not_null]
+
+  - name: store_quarter
+    description: Quarterly sales per store with consistency and mix measures. Grain = one store, one quarter.
+    columns:
+      - name: store_quarter_key
+        tests: [unique, not_null]
+      - name: store_id
+        tests: [not_null]
+      - name: quarter_start
+        tests: [not_null]
+      - name: sales_dollars
+        tests: [not_null]
+      - name: active_months
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3]
+                quote: false
