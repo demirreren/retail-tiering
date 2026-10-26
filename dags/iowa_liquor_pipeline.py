@@ -57,8 +57,8 @@ def alert_on_failure(context) -> None:
     dag_id="iowa_liquor_pipeline",
     description="Download this year's Iowa liquor sales, clean, merge into Snowflake, run dbt.",
     schedule="0 9 7 * *",            # 09:00 on the 7th of each month; the Hub publishes early in the month
-    start_date=datetime(2026, 10, 1),
-    catchup=False,                   # do not back-run missed months on first start
+    start_date=datetime(2026, 10, 26),   # today: with catchup=False Airflow would otherwise auto-run the last past slot
+    catchup=False,                   # do not back-run every missed month on first start
     max_active_runs=1,
     default_args={
         "retries": 2,
