@@ -70,3 +70,23 @@ and interview answers use only what is listed here.
 - Back-test: 17,392 consecutive store-quarter pairs; 68.7% keep their tier next quarter (range 65.4% to 75.7% by quarter)
 - Transition matrix (this quarter -> next): A->A 66.5%, A->B 30.7%, A->C 2.8%; B->A 20.7%, B->B 51.2%, B->C 28.1%;
   C->A 1.2%, C->B 17.9%, C->C 80.9%
+
+## Tier-drop model (Phase 2), verified 2026-10-26 (tiering/predict_drop.py)
+- Question: which tier A or B stores drop a tier next quarter? Label = next tier lower. Tier C excluded (cannot drop).
+- Rows: 9,027 labelled A/B store-quarters. Time split: train 7,210 (2024Q1 to 2025Q4), test 1,817 (2026Q1 and 2026Q2).
+  Drop rate 30.2% train, 30.7% test.
+- Test results (higher is better):
+  | model                 | AUC   | avg precision | precision in top 10% riskiest |
+  | margin-only rule      | 0.666 | 0.437         | 0.497 |
+  | logistic regression   | 0.864 | 0.716         | 0.796 |
+  | XGBoost               | 0.850 | 0.708         | 0.796 |
+  Honest read: both learned models beat the "closest to the tier floor" rule by a wide margin; XGBoost and a scaled
+  logistic regression are within noise of each other on this data. A random top-10% pick would score 0.307.
+- Top SHAP drivers (mean |SHAP|, test set): growth rank 1.03, cushion above tier floor 0.61, items carried 0.24,
+  sales rank 0.19, sales size 0.18. Direction: a HIGH growth rank this quarter raises drop risk (one-quarter spikes
+  revert), a small cushion above the tier floor raises it, carrying few items raises it.
+- Scored 933 A/B stores for 2026Q3 into MARTS.TIER_DROP_RISK; 360 flagged at p >= 0.5.
+- Example store: Casey's General Store #1144, Polk City (store 4513), tier A, p(drop) = 0.95. Pushes: growth rank 0.85
+  (+1.05), cushion 0 (+0.88, it is the weakest A store), 121 items (+0.40), moved up into A last quarter (+0.23).
+- Design insight: growth is 20% of the score and is the noisiest input, so it drives most tier churn. A next version
+  would smooth growth over two quarters or lower its weight.
