@@ -63,17 +63,25 @@ def connect_reader() -> snowflake.connector.SnowflakeConnection:
 
 
 def check_read_only(sql: str) -> str:
-    """Return the cleaned SQL or raise QueryRejected. Pure function, easy to test."""
+    """Return the cleaned SQL or raise QueryRejected. Pure function, easy to test.
+
+    The checks run on the SQL with string literals blanked out, so a value such as
+    next_change = 'drop' passes while DROP TABLE does not. (The first eval run caught the
+    naive version of this: the model had to work around a false rejection.)
+    """
     s = sql.strip().rstrip(";").strip()
     if not s:
         raise QueryRejected("Empty query")
-    if ";" in s:
+    if s.count("'") % 2:
+        raise QueryRejected("Unbalanced quotes")
+    structure = re.sub(r"'[^']*'", "''", s)      # literals -> '' ; keywords and ; inside them no longer count
+    if ";" in structure:
         raise QueryRejected("Only one statement is allowed (found ';')")
-    if "--" in s or "/*" in s:
+    if "--" in structure or "/*" in structure:
         raise QueryRejected("Comments are not allowed in queries")
-    if not re.match(r"^(select|with)\b", s, re.I):
+    if not re.match(r"^(select|with)\b", structure, re.I):
         raise QueryRejected("Only SELECT (or WITH ... SELECT) queries are allowed")
-    bad = _FORBIDDEN.search(s)
+    bad = _FORBIDDEN.search(structure)
     if bad:
         raise QueryRejected(f"Keyword not allowed in a read-only query: {bad.group(0).upper()}")
     return s
@@ -122,9 +130,11 @@ def schema_summary(conn) -> str:
 
 if __name__ == "__main__":
     # Offline self-test of the statement check (no Snowflake needed).
-    ok = ["SELECT 1", "with q as (select 1) select * from q", "SELECT * FROM store_tiers WHERE tier = 'A';"]
+    ok = ["SELECT 1", "with q as (select 1) select * from q", "SELECT * FROM store_tiers WHERE tier = 'A';",
+          "SELECT store_id FROM store_tiers WHERE next_change = 'drop'", "select * from t where name = 'DELETE ME; DROP IT'"]
     bad = ["DELETE FROM store_tiers", "SELECT 1; DROP TABLE x", "select 1 -- comment", "UPDATE t SET a=1",
-           "CREATE TABLE t AS SELECT 1", "SHOW TABLES", "use role retail_loader", "select * from t where a = 1 /* x */"]
+           "CREATE TABLE t AS SELECT 1", "SHOW TABLES", "use role retail_loader", "select * from t where a = 1 /* x */",
+           "select * from t where a = 'x", "select 1 union select 1 from t; delete from t"]
     for q in ok:
         assert check_read_only(q), q
     for q in bad:
