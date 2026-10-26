@@ -26,9 +26,10 @@ from airflow.sdk import Param, dag, get_current_context, task
 
 from pipeline import config
 from pipeline import extract as extract_mod
-from pipeline.load import connect, ensure_tables, get_watermark, log_run, merge_parquet
-from pipeline.quality import check_freshness, check_volume
-from pipeline.transform import transform_year
+
+# pandas and the Snowflake connector are imported inside the tasks, not here: the DAG
+# processor re-parses this file every 30 s, and on macOS those libraries crash a forked
+# parser process. Keeping the top level light also makes parsing fast.
 
 log = logging.getLogger(__name__)
 
@@ -90,6 +91,8 @@ def iowa_liquor_pipeline():
 
     @task
     def transform(csv_paths: list[str]) -> dict:
+        from pipeline.load import connect, ensure_tables, get_watermark
+        from pipeline.transform import transform_year
         ctx = get_current_context()
         year = int(ctx["params"]["year"])
         with connect() as conn:
@@ -100,12 +103,15 @@ def iowa_liquor_pipeline():
 
     @task
     def dq_volume(info: dict) -> dict:
+        from pipeline.load import connect
+        from pipeline.quality import check_volume
         run_id = get_current_context()["run_id"]
         with connect() as conn:
             return check_volume(conn, info["year"], info["rows_in_file"], run_id)
 
     @task
     def load(info: dict) -> dict:
+        from pipeline.load import connect, log_run, merge_parquet
         run_id = get_current_context()["run_id"]
         with connect() as conn:
             inserted = merge_parquet(conn, Path(info["parquet"]), run_id)
@@ -114,6 +120,8 @@ def iowa_liquor_pipeline():
 
     @task
     def dq_freshness(_: dict) -> dict:
+        from pipeline.load import connect
+        from pipeline.quality import check_freshness
         params = get_current_context()["params"]
         max_age = 1 if params["simulate_failure"] == "stale_data" else int(params["freshness_max_age_days"])
         with connect() as conn:

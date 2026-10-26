@@ -8,4 +8,6 @@ export AIRFLOW_HOME="$REPO/airflow_home"
 export AIRFLOW__CORE__DAGS_FOLDER="$REPO/dags"
 export AIRFLOW__CORE__LOAD_EXAMPLES=False
 export PYTHONPATH="$REPO"
+export PATH="$REPO/.venv/bin:$PATH"   # standalone spawns sub-commands by the bare name "airflow"
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES   # macOS: forked Airflow processes crash otherwise
 exec "$REPO/.venv/bin/airflow" "$@"
