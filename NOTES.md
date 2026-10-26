@@ -21,7 +21,8 @@ and interview answers use only what is listed here.
   - Publisher's stated unique id (invoice_id) is not unique: 2,214 repeated (invoice_id, item_no) pairs,
     of which 2,200 are real repeats (same invoice and item, different quantities) and 14 are exact duplicate rows
   - Pipeline key: md5 of the raw row text (line_key). Exact duplicates collapse: 1,814,842 rows to load
-- 2025 file (id 1262): 631 MB download. 2024 file (id 1261): 672 MB download. Not profiled yet.
+- 2025 file (id 1262): 631 MB zip, 5 CSV parts, 23 columns (schema check passes), 2,920,609 lines, 2025-01-01 to 2025-12-31
+- 2024 file (id 1261): 672 MB zip, 5 CSV parts, 23 columns (schema check passes), 3,154,794 lines, 2024-01-01 to 2024-12-31
 
 ## Pipeline timings, verified 2026-10-25 (MacBook, local)
 - Download of the 2026 zip: about 72 s
