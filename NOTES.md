@@ -100,3 +100,17 @@ and interview answers use only what is listed here.
   - USE ROLE RETAIL_LOADER: blocked
 - App-level check (assistant/sql_tool.py) rejects non-SELECT statements, multiple statements, and comments before
   anything reaches Snowflake; every query is wrapped in a 200-row LIMIT; session statement timeout 30 s.
+
+## Assistant eval (Phase 3), verified 2026-10-26 (assistant/run_eval.py, model claude-opus-5-5)
+- 32 questions, each with SQL ground truth (evals/questions.py). Types: 10 counts, 6 dollar figures, 7 store-id sets,
+  3 keyword answers, 1 percentage, 1 yes/no, 1 unanswerable (2019 data), 1 county not in Iowa, 2 write requests to refuse.
+- Run 1: 30/32 (94%), $0.39, 190 s. Both failures were defects in the eval, not in the assistant:
+  - q07 (highest-risk Polk A store): assistant answered 4513 correctly and mentioned the runner-up (010099, 94.8% vs 95.0%);
+    grader demanded an exact set. Fixed: single-answer questions grade the first store named.
+  - q09 (tier A share of total sales): assistant divided by all stores (65.4%); my truth divided by tiered stores only (66.7%).
+    The assistant's reading is the natural one, so the truth now matches it and the README was corrected.
+  - The first live question also exposed a guardrail bug: next_change = 'drop' was rejected for the word "drop" inside a
+    string literal. Fixed: keyword checks run on SQL with literals blanked out.
+- Run 2 (after fixes): 32/32 (100%), $0.41, 192 s. Median 5.2 s per question (min 3.0, max 18.2), 1.0 tool calls per
+  question on average. 148,416 input tokens of which 124,224 served from the prompt cache, 14,511 output tokens.
+- Both write requests were refused without any SQL being attempted; both out-of-data questions were declined, not guessed.

@@ -21,6 +21,12 @@ store in the state since 2012.
 3. **Tier-drop model (`tiering/predict_drop.py`).** XGBoost predicts which A and B stores drop a tier
    next quarter, trained on older quarters and tested on newer ones. SHAP explains the drivers overall
    and for any single store. Scores for the latest quarter land in `MARTS.TIER_DROP_RISK`.
+4. **Sales copilot (`assistant/`).** Claude answers questions like "which stores in Polk County dropped a
+   tier between Q2 and Q3, and why?" by writing SQL and running it through one tool that can only read:
+   a Snowflake user that holds a SELECT-only role, a check that rejects anything but a single SELECT,
+   a 200-row cap, and a 30-second timeout. A 32-question eval (`evals/`) grades every answer against
+   SQL-computed ground truth, including two write requests it must refuse and two questions the data
+   cannot answer.
 
 ## Numbers (all from real runs, see NOTES.md)
 
@@ -31,6 +37,8 @@ store in the state since 2012.
 - Tier A stores make 65.4% of all sales in the latest quarter (66.7% among tiered stores). 68.7% of stores keep their tier from one quarter to the next.
 - Tier-drop model on held-out 2026 quarters: AUC 0.850 (XGBoost), 0.864 (logistic regression),
   0.666 for a "closest to the tier floor" rule. Precision in the riskiest 10%: 0.80 vs a 0.31 base rate.
+- Copilot eval: 32 of 32 correct on the second run (the first run's two misses were defects in my own
+  eval, fixed), one SQL query per question, median 5 s, $0.41 for the whole run on Claude Opus 5.5.
 
 ![SHAP for one store](reports/shap_store_4513.png)
 
@@ -43,6 +51,9 @@ cp .env.example .env             # fill in your Snowflake account identifier
 scripts/airflow.sh standalone    # UI at http://localhost:8080; trigger iowa_liquor_pipeline
 .venv/bin/python -m tiering.tiers
 .venv/bin/python -m tiering.predict_drop
+# copilot: run snowflake/setup_reader.sql in Snowsight, add ANTHROPIC_API_KEY to .env, then
+.venv/bin/python -m assistant.ask "Which stores in Polk County dropped a tier between 2026 Q2 and Q3, and why?"
+.venv/bin/python -m assistant.run_eval
 ```
 
 Snowflake login is a dedicated service user with key-pair auth: the private key stays in `.secrets/`
@@ -55,7 +66,9 @@ dags/        Airflow DAG
 pipeline/    extract, transform, load, quality checks
 dbt/         staging and mart models with tests
 tiering/     composite score, tiers, back-test, tier-drop model
-snowflake/   one-time account setup SQL
+assistant/   read-only SQL tool, Claude agent, ask CLI, eval runner
+evals/       32 questions with ground-truth SQL, computed answers, latest results
+snowflake/   one-time account setup SQL (loader and reader users)
 scripts/     wrappers that load .env and pick the right venv
 reports/     SHAP charts
 NOTES.md     every number, with the run it came from
@@ -68,5 +81,4 @@ Iowa Liquor Sales, Iowa Data Hub (data.iowa.gov), CC BY 4.0. One dataset per yea
 
 ## Next
 
-A read-only question-answering assistant over the Snowflake marts with an evaluation set, a Tableau
-Public dashboard, unit tests, and CI.
+A Tableau Public dashboard, unit tests, and CI.
