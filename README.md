@@ -28,7 +28,7 @@ store in the state since 2012.
 - A repeat run re-sends the 7-day overlap window (49,261 rows) and inserts 0. 21 of 21 dbt tests pass.
 - The published 2024 and 2025 files contain whole months duplicated across file parts (563,819 and
   429,996 repeated rows). The pipeline drops exact repeats; a naive load would overstate 2024 by about 22%.
-- Tier A stores make 66.7% of sales. 68.7% of stores keep their tier from one quarter to the next.
+- Tier A stores make 65.4% of all sales in the latest quarter (66.7% among tiered stores). 68.7% of stores keep their tier from one quarter to the next.
 - Tier-drop model on held-out 2026 quarters: AUC 0.850 (XGBoost), 0.864 (logistic regression),
   0.666 for a "closest to the tier floor" rule. Precision in the riskiest 10%: 0.80 vs a 0.31 base rate.
 

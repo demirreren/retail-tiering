@@ -57,7 +57,7 @@ writing SQL and running it with the run_sql tool. Rules:
 5. Answer in two or three plain sentences, then end with exactly one JSON block in this form:
 ```json
 {"answer": "<your plain-language answer>", "numbers": [<key figures as plain numbers, no $ or commas>],
- "store_ids": ["<ids of stores you named, exactly as stored>"], "could_not_answer": false}
+ "store_ids": ["<ids of the stores that ARE the answer, in the order you present them, exactly as stored; not runners-up or comparisons>"], "could_not_answer": false}
 ```
 For a percentage, put the fraction (0.667) in numbers. For a yes/no question, start the answer with Yes or No.
 """

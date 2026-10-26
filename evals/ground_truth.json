@@ -73,7 +73,7 @@
   "q09": {
     "type": "percent",
     "question": "What share of total sales in 2026 Q3 came from tier A stores?",
-    "truth": 0.6665343442708709
+    "truth": 0.6538442997343265
   },
   "q10": {
     "type": "count",

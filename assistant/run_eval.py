@@ -45,9 +45,12 @@ def grade(qtype: str, truth, parsed: dict, text: str, trace: list) -> tuple[bool
         return (ok, f"expected {t:.4f} (or {100*t:.1f}%), got {nums}")
     if qtype == "set":
         want = {norm_id(x) for x in truth}
-        if not ids:  # fall back to ids mentioned in the prose
-            ids = {norm_id(x) for x in re.findall(r"\b\d{3,6}\b", text or "")} & want if want else set()
-        return (ids == want, f"expected {sorted(want)}, got {sorted(ids)}")
+        ordered = [norm_id(x) for x in parsed.get("store_ids", [])]
+        if not ordered:  # fall back to ids mentioned in the prose
+            ordered = [norm_id(x) for x in re.findall(r"\b\d{3,6}\b", text or "") if norm_id(x) in want]
+        if len(want) == 1:   # one right answer: the first store named must be it (runners-up as context are fine)
+            return (bool(ordered) and ordered[0] in want, f"expected {sorted(want)}, first named {ordered[:1]}")
+        return (set(ordered) == want, f"expected {sorted(want)}, got {sorted(set(ordered))}")
     if qtype == "keywords":
         missing = [k for k in truth if k.lower() not in low]
         return (not missing, f"missing {missing}" if missing else "all keywords present")

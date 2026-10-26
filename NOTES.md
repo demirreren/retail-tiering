@@ -66,7 +66,8 @@ and interview answers use only what is listed here.
 - Score = 0.4 sales + 0.2 growth + 0.2 consistency + 0.2 product mix, each a percentile rank within the quarter.
   Tiers: A = top 20%, B = next 30%, C = bottom 50%. Only stores active all 3 months are tiered.
 - 22,838 store-quarters, 20,161 tiered, 2,487 stores, 11 quarters (2024Q1 to 2026Q3)
-- Latest quarter (2026Q3): A 373, B 560, C 933 stores. Tier A = 66.7% of sales, B = 21.7%, C = 11.6%
+- Latest quarter (2026Q3): A 373, B 560, C 933 stores. Among tiered stores, tier A = 66.7% of sales, B = 21.7%, C = 11.6%.
+  Counting every store with sales that quarter (2,121, including 255 partial-quarter stores), tier A = 65.4%.
 - Back-test: 17,392 consecutive store-quarter pairs; 68.7% keep their tier next quarter (range 65.4% to 75.7% by quarter)
 - Transition matrix (this quarter -> next): A->A 66.5%, A->B 30.7%, A->C 2.8%; B->A 20.7%, B->B 51.2%, B->C 28.1%;
   C->A 1.2%, C->B 17.9%, C->C 80.9%

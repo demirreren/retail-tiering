@@ -34,7 +34,9 @@ QUESTIONS = [
     {"id": "q08", "type": "keywords", "question": "Why is store 4513 predicted to be at risk of dropping a tier next quarter?",
      "sql": f"SELECT TOP_REASONS FROM {M}.TIER_DROP_RISK WHERE STORE_ID='4513'", "expect_keywords": ["growth"]},
     {"id": "q09", "type": "percent", "question": "What share of total sales in 2026 Q3 came from tier A stores?",
-     "sql": f"SELECT SUM(CASE WHEN TIER='A' THEN SALES_DOLLARS ELSE 0 END)/SUM(SALES_DOLLARS) FROM {M}.STORE_TIERS WHERE QUARTER_START='{LATEST}' AND TIER IN ('A','B','C')"},
+     # denominator = every store with sales that quarter, tiered or not (first eval run: the assistant read it this
+     # way, my first version divided by tiered stores only; the assistant's reading is the natural one)
+     "sql": f"SELECT SUM(CASE WHEN TIER='A' THEN SALES_DOLLARS ELSE 0 END)/SUM(SALES_DOLLARS) FROM {M}.STORE_TIERS WHERE QUARTER_START='{LATEST}'"},
     {"id": "q10", "type": "count", "question": "How many distinct stores had sales in 2025?",
      "sql": f"SELECT COUNT(DISTINCT STORE_ID) FROM {M}.STORE_QUARTER WHERE YEAR=2025"},
     {"id": "q11", "type": "number", "question": "What were total sales in Polk County in 2026 Q1?",
