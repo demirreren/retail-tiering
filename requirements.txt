@@ -8,3 +8,5 @@ scikit-learn
 xgboost
 shap
 matplotlib
+anthropic
+pytest
