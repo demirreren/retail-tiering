@@ -90,3 +90,12 @@ and interview answers use only what is listed here.
   (+1.05), cushion 0 (+0.88, it is the weakest A store), 121 items (+0.40), moved up into A last quarter (+0.23).
 - Design insight: growth is 20% of the score and is the noisiest input, so it drives most tier churn. A next version
   would smooth growth over two quarters or lower its weight.
+
+## Assistant guardrails (Phase 3), verified 2026-10-26
+- Logged in as ASSISTANT_SVC (role RETAIL_READER only; secondary roles = ALL, which is still just that one role):
+  - SELECT on MARTS.STORE_TIERS: allowed (22,838 rows)
+  - SELECT on RAW.LIQUOR_SALES: blocked (not granted)
+  - UPDATE, DELETE, CREATE TABLE in MARTS, sent directly without the app's statement check: all blocked by Snowflake (access control error)
+  - USE ROLE RETAIL_LOADER: blocked
+- App-level check (assistant/sql_tool.py) rejects non-SELECT statements, multiple statements, and comments before
+  anything reaches Snowflake; every query is wrapped in a 200-row LIMIT; session statement timeout 30 s.
