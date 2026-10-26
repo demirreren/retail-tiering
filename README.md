@@ -1,5 +1,7 @@
 # Retail store tiering on Iowa liquor sales
 
+[![CI](https://github.com/demirreren/retail-tiering/actions/workflows/ci.yml/badge.svg)](https://github.com/demirreren/retail-tiering/actions/workflows/ci.yml)
+
 A weekend learning project (October 2026): an end-to-end data pipeline and store-tiering
 model on Iowa's public liquor sales data, which records every bottle sold to every licensed
 store in the state since 2012.
