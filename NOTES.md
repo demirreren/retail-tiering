@@ -28,3 +28,16 @@ and interview answers use only what is listed here.
 - Download of the 2026 zip: about 72 s
 - pandas clean of all 1.81M rows, including md5 line keys: 24 s
 - Incremental run with watermark 2026-09-15 (7-day overlap, cutoff 2026-09-08): 162,651 rows selected, 1,947 stores
+
+## Phase 1 first end-to-end run, verified 2026-10-26 (Airflow run manual__2026-10-26T04:27:08)
+- All 8 tasks succeeded, no retries, no alerts. Wall time about 130 s.
+  - extract 4 s (reused the day's download), check_schema < 1 s, transform about 30 s,
+    load about 50 s, dq checks < 5 s each, dbt_run 5 s, dbt_test 3 s
+- Load: staged 1,814,842 rows in 1 chunk; MERGE inserted 1,814,842 new rows, 0 already present
+- Freshness check: newest sale 2026-09-30, 26 days old, limit 45 days. Volume check skipped (no previous run)
+- Snowflake after the run (RETAIL database):
+  - RAW.LIQUOR_SALES 1,814,842 rows; RAW.LOAD_LOG 1 row (rows_in_file 1,814,856, rows_inserted 1,814,842)
+  - STAGING.STG_LIQUOR_SALES view
+  - MARTS.STORE_MONTH 17,936 rows = 2,219 stores x up to 9 months (2026-01 to 2026-09), total sales $301,452,235
+  - MARTS.STORE_QUARTER 6,331 rows: 2026Q1 2,100 stores (1,831 active all 3 months), Q2 2,110 (1,866), Q3 2,121 (1,866)
+- dbt: 3 models built (1 view, 2 tables) in 5 s; 21 tests (unique, not_null, accepted_values), 21 passed, 0 failed
