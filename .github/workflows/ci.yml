@@ -1,0 +1,49 @@
+# Runs on every push and pull request: the unit tests, and a dbt parse of the models.
+# Neither job needs Snowflake or Anthropic credentials.
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    name: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-test.txt
+      # requirements-test.txt, not requirements.txt: the tests never import Airflow or the
+      # model libraries, and installing them would add minutes to every run (see setup.sh for the real env).
+      - name: Install test dependencies
+        run: pip install -r requirements-test.txt
+      - name: Run unit tests
+        run: pytest
+
+  dbt-parse:
+    name: dbt parse
+    runs-on: ubuntu-latest
+    env:
+      # Placeholders only: dbt parse compiles the project and checks refs, sources and tests
+      # without opening a connection. The profile reads these names from the environment.
+      SNOWFLAKE_ACCOUNT: placeholder
+      SNOWFLAKE_USER: placeholder
+      SNOWFLAKE_PRIVATE_KEY_PATH: /dev/null
+      SNOWFLAKE_ROLE: placeholder
+      SNOWFLAKE_WAREHOUSE: placeholder
+      SNOWFLAKE_DATABASE: RETAIL
+      SNOWFLAKE_SCHEMA: RAW
+      DBT_SEND_ANONYMOUS_USAGE_STATS: "false"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dbt.txt
+      - name: Install dbt
+        run: pip install -r requirements-dbt.txt
+      - name: Parse the dbt project
+        run: dbt parse --project-dir dbt --profiles-dir dbt

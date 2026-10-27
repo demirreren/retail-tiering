@@ -114,3 +114,17 @@ and interview answers use only what is listed here.
 - Run 2 (after fixes): 32/32 (100%), $0.41, 192 s. Median 5.2 s per question (min 3.0, max 18.2), 1.0 tool calls per
   question on average. 148,416 input tokens of which 124,224 served from the prompt cache, 14,511 output tokens.
 - Both write requests were refused without any SQL being attempted; both out-of-data questions were declined, not guessed.
+
+## Polish (Phase 4), verified 2026-10-26
+- setup.sh no longer worked as written: Airflow's constraints file for 3.3.2 (generated 2026-09-17) pins pandas 3.0.5,
+  and the Snowflake connector's pandas extra requires pandas < 3, so pip refused to install anything. Fix: that one
+  pin is dropped from a local copy of the constraints file. Environment rebuilt with the fixed script: Airflow 3.3.2,
+  pandas 2.3.3, pyarrow 25.0.1, numpy 2.5.3, snowflake-connector-python 4.7.3 (the constraints pin; the 2026-10-25
+  environment above had 5.1.0), xgboost 3.4.1, shap 0.54.1, scikit-learn 1.9.1, anthropic 2.3.0, pytest 9.1.1
+- Unit tests (tests/): 80 passed in .venv, and 80 passed in a venv built from requirements-test.txt alone
+  (pandas 2.3.3, pyarrow 26.0.0, anthropic 2.3.0), which is what CI installs. No test touches Snowflake or the API.
+- dbt parse with placeholder credentials: OK (dbt-core 1.12.6, dbt-snowflake 1.12.4), one deprecation warning:
+  loaded_at_field should move into the source's config block
+- Tableau export (scripts/export_for_tableau.py, loader user, SELECTs only): STORE_QUARTER 22,838 rows x 18 columns,
+  STORE_TIERS 22,838 x 32, TIER_DROP_RISK 933 x 12, each including the added state column
+- CI (.github/workflows/ci.yml) has not run yet: it runs on the first push of this branch

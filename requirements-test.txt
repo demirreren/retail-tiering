@@ -1,0 +1,10 @@
+# What the unit tests need, and nothing else. CI installs this instead of requirements.txt:
+# the tests cover pipeline/, assistant/ and evals/, none of which import Airflow, and
+# Airflow plus the model libraries would add minutes to every CI run. For real runs use setup.sh.
+pandas
+pyarrow
+requests
+python-dotenv
+snowflake-connector-python[pandas]
+anthropic
+pytest

@@ -6,10 +6,15 @@ AF_VER=3.3.2
 
 # 1) Airflow + analysis libs. Airflow publishes a "constraints" file: a list of
 #    exact versions it was tested with, so pip does not pick incompatible ones.
+#    One pin is dropped from it: the file pins pandas 3, but the Snowflake connector's
+#    pandas extra still requires pandas < 3, so with that line pip refuses to install
+#    anything. Without it pip picks the newest pandas 2.x; every other pin still applies.
+CONSTRAINTS="$(mktemp)"
+curl -sSL "https://raw.githubusercontent.com/apache/airflow/constraints-$AF_VER/constraints-3.12.txt" \
+  | grep -v '^pandas==' > "$CONSTRAINTS"
 $PY -m venv .venv
 .venv/bin/pip install --upgrade pip
-.venv/bin/pip install -r requirements.txt \
-  --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-$AF_VER/constraints-3.12.txt"
+.venv/bin/pip install -r requirements.txt --constraint "$CONSTRAINTS"
 
 # 2) dbt in its own venv (see requirements-dbt.txt for why).
 $PY -m venv .venv-dbt

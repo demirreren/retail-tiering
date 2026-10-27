@@ -1,0 +1,5 @@
+# Only pytest settings live here; the project is not packaged. Run the tests with .venv/bin/pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"

@@ -1,0 +1,6 @@
+invoice_id,ordered_on,store_no,store_name,store_address,store_city,store_zip_code,county_fips_code,county_name,category_code,category_name,vendor_number,vendor_name,item_no,im_desc,pack,bottle_volume_ml,state_bottle_cost,state_bottle_retail,sales_bottles,sales_dollars,sales_liters,sales_gallons
+INV-00001,2026-03-14,2190,Central City Liquor,1460 2nd Ave,Des Moines,50314,19153,POLK,1031100,American Vodkas,260,Diageo Americas,38176,Smirnoff Vodka 80 Prf,12,750,7.00,10.49,12,125.88,9.00,2.37
+INV-00002,2026-03-14,010074,Hy-Vee #1,,Ames,50010,19169, STORY ,1012100,Canadian Whiskies,115,Constellation Brands,11296,Crown Royal,6,1750,21.00,31.49,6,188.94,10.50,2.77
+INV-00003,2026-03-15,2190,Central City Liquor,1460 2nd Ave,Des Moines,50314,19153,POLK,1081300,American Cordials,65,Jim Beam Brands,65228,Dekuyper Peachtree,n/a,750,7.50,11.25,2,22.50,1.50,0.39
+INV-00004,2026-02-30,4513,Casey's General Store #1144,101 N 3rd St,Polk City,50226,19153,POLK,1031100,American Vodkas,260,Diageo Americas,38176,Smirnoff Vodka 80 Prf,12,750,7.00,10.49,1,10.49,0.75,0.19
+INV-00001,2026-03-14,2190,Central City Liquor,1460 2nd Ave,Des Moines,50314,19153,POLK,1031100,American Vodkas,260,Diageo Americas,38176,Smirnoff Vodka 80 Prf,12,750,7.00,10.49,12,125.88,9.00,2.37
