@@ -1,7 +1,7 @@
 # NOTES: verified numbers only
 
-Every number here was produced by running the code in this repo. Resume bullets
-and interview answers use only what is listed here.
+Every number here was produced by running the code in this repo. Anything I say about this
+project comes from this file.
 
 ## Environment (verified 2026-10-25)
 - Python 3.12 (Homebrew), macOS
